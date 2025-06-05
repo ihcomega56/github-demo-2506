@@ -40,6 +40,10 @@ jobs:
           path: |
             ${{ github.workspace }}/build/libs/*.jar
             ${{ github.workspace }}/build/reports/application.cdx.json
+      
+      - name: Debug show files
+        run: ls -R
+
 
   deploy:
     runs-on: ubuntu-latest
