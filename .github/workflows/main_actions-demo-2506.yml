@@ -39,7 +39,7 @@ jobs:
           name: java-app
           path: |
             ${{ github.workspace }}/build/libs/*.jar
-            ${{ github.workspace }}/build/reports/bom.json
+            ${{ github.workspace }}/build/reports/application.cdx.json
 
   deploy:
     runs-on: ubuntu-latest
