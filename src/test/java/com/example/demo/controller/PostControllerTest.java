@@ -90,7 +90,7 @@ class PostControllerTest {
         when(postService.publishPost(postId)).thenReturn(publishedPost);
 
         // when & then - 公開APIを呼び出してレスポンスを検証
-        mockMvc.perform(put("/api/posts/drafts/{id}/publish", postId))
+        mockMvc.perform(put("/api/posts/drafts/{id}/publiss", postId))
                 .andExpect(status().isOk()) // HTTP 200 OK
                 .andExpect(jsonPath("$.id").value(postId))
                 .andExpect(jsonPath("$.draft").value(false)); // 公開状態であることを確認
