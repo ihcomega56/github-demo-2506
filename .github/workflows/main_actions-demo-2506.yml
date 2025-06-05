@@ -38,7 +38,7 @@ jobs:
         with:
           name: java-app
           path: |
-            ${{ github.workspace }}/build/libs/*.jar
+            ${{ github.workspace }}/build/libs/demo-0.0.1-SNAPSHOT.jar
             ${{ github.workspace }}/build/reports/application.cdx.json
       
       - name: Debug show files
