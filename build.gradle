@@ -2,10 +2,11 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.4'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'maven-publish' // GitHub Packagesに公開するためのプラグイン
 }
 
 group = 'com.example'
-version = '0.0.1-SNAPSHOT'
+version = project.hasProperty('version') ? project.getProperty('version') : '0.0.1-SNAPSHOT'
 
 java {
 	toolchain {
@@ -26,4 +27,48 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// GitHub Packagesへの公開設定
+publishing {
+	repositories {
+		maven {
+			name = "GitHubPackages"
+			url = uri("https://maven.pkg.github.com/${System.getenv("GITHUB_REPOSITORY") ?: "OWNER/REPO"}")
+			credentials {
+				username = System.getenv("GITHUB_ACTOR") ?: "USERNAME"
+				password = System.getenv("GITHUB_TOKEN") ?: System.getenv("PAT") ?: "TOKEN"
+			}
+		}
+	}
+	publications {
+		gpr(MavenPublication) {
+			from(components.java)
+			
+			// POMに追加情報を設定
+			pom {
+				name = 'Demo Application'
+				description = 'Spring Boot Demo Application with SBOM'
+				url = "https://github.com/${System.getenv("GITHUB_REPOSITORY") ?: "OWNER/REPO"}"
+				licenses {
+					license {
+						name = 'MIT License'
+						url = 'https://opensource.org/licenses/MIT'
+					}
+				}
+				developers {
+					developer {
+						id = 'developer'
+						name = 'Developer'
+						email = 'dev@example.com'
+					}
+				}
+				scm {
+					connection = "scm:git:git://github.com/${System.getenv("GITHUB_REPOSITORY") ?: "OWNER/REPO"}.git"
+					developerConnection = "scm:git:ssh://github.com/${System.getenv("GITHUB_REPOSITORY") ?: "OWNER/REPO"}.git"
+					url = "https://github.com/${System.getenv("GITHUB_REPOSITORY") ?: "OWNER/REPO"}"
+				}
+			}
+		}
+	}
 }

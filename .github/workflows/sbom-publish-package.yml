@@ -1,0 +1,109 @@
+name: Generate SBOM and Publish Package
+
+on:
+  # リリースタグが作成されたときに実行
+  release:
+    types: [created]
+  
+  # Pull Request作成時にも実行
+  pull_request:
+    branches: [ main ]
+  
+  # 手動実行も可能に
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g. v1.0.0)'
+        required: true
+        default: 'v0.1.0'
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write # SBOM attestation requires this permission
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: gradle
+        # GitHub Packagesへの認証設定
+        server-id: github
+        server-username: GITHUB_ACTOR
+        server-password: PAT
+    
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    
+    # パッケージのビルド
+    - name: Build with Gradle
+      run: ./gradlew build
+    
+    # バージョン情報の設定
+    - name: Set Release Version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_ENV
+        elif [ "${{ github.event_name }}" == "pull_request" ]; then
+          echo "VERSION=pr-${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+        else
+          echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        fi
+        echo "VERSION=${{ env.VERSION }}" >> $GITHUB_OUTPUT
+    
+    # SBOMの生成 (GitHubの公式SBOMツールを使用)
+    - name: Generate SBOM
+      uses: advanced-security/gh-sbom@v1
+      with:
+        package-url: 'pkg:maven/com.example/demo@${{ env.VERSION }}'
+        output-file: 'sbom.json'
+        package-path: '.'
+        sbom-format: 'spdx-json'
+    
+    # SBOMの検証
+    - name: Validate SBOM
+      run: |
+        cat sbom.json | grep -q "SPDXID"
+        if [ $? -ne 0 ]; then
+          echo "SBOM generation failed"
+          exit 1
+        fi
+        echo "SBOM validated successfully"
+    
+    # GitHub Packagesへのパッケージのアップロード
+    - name: Publish package to GitHub Packages
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+        PAT: ${{ secrets.PAT }}
+      run: |
+        ./gradlew -Pversion=${{ env.VERSION }} publish
+    
+    # SBOMをリリースアセットとして添付
+    - name: Upload SBOM to Release Assets
+      if: github.event_name == 'release'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.PAT }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./sbom.json
+        asset_name: sbom-${{ env.VERSION }}.json
+        asset_content_type: application/json
+    
+    # リリースでない場合はアーティファクトとして保存
+    - name: Upload SBOM as Artifact
+      if: github.event_name != 'release'
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom-${{ env.VERSION }}
+        path: sbom.json
+        retention-days: 30
