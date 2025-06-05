@@ -1,14 +1,12 @@
 package com.example.demo.controller;
 
+import com.example.demo.config.DeploymentInfo;
 import com.example.demo.model.Post;
 import com.example.demo.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,9 +16,11 @@ import java.util.Optional;
 public class PostController {
     
     private final PostService postService;
+    private final DeploymentInfo deploymentInfo;
     
-    public PostController(PostService postService) {
+    public PostController(PostService postService, DeploymentInfo deploymentInfo) {
         this.postService = postService;
+        this.deploymentInfo = deploymentInfo;
     }
     
     @PostMapping("/drafts")
@@ -69,13 +69,10 @@ public class PostController {
     }
     
     @RestController
-    public static class TestController {
+    public class TestController {
         @GetMapping("/test")
         public String testEndpoint() {
-            String deployedAt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
-                .withZone(ZoneId.of("Asia/Tokyo"))
-                .format(Instant.now());
-            return "<html><body><h1 style='font-size:48px;'>Hello World! 🌍</h1><p style='font-size:24px;'>Deployed at: " + deployedAt + "</p></body></html>";
+            return "<html><body><h1 style='font-size:48px;'>Hello World! 🌍</h1><p style='font-size:24px;'>Deployed at: " + deploymentInfo.getDeployedAt() + "</p></body></html>";
         }
     }
 }

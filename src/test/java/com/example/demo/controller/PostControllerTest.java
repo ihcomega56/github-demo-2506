@@ -12,14 +12,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.demo.config.DeploymentInfo;
 import com.example.demo.model.Post;
 import com.example.demo.service.PostService;
 
@@ -28,7 +27,6 @@ import com.example.demo.service.PostService;
  * MockMvcを使用してHTTPリクエスト/レスポンスのテストを実行する
  * PostServiceはMockとしてモック化している
  */
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(PostController.class)
 @Import(TestConfig.class)
 class PostControllerTest {
@@ -38,6 +36,9 @@ class PostControllerTest {
 
     @Autowired
     private PostService postService; // PostServiceのモック
+    
+    @Autowired
+    private DeploymentInfo deploymentInfo; // DeploymentInfoのモック
 
     /**
      * 下書き投稿作成APIのテスト - 正常系
