@@ -7,16 +7,19 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read  # This is required for actions/checkout
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Java version 
         uses: actions/setup-java@v4
@@ -27,11 +30,16 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
+      - name: Generate SBOM
+        run: ./gradlew cyclonedxBom
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: '${{ github.workspace }}/build/libs/*.jar'
+          path: |
+            ${{ github.workspace }}/build/libs/*.jar
+            ${{ github.workspace }}/build/reports/bom.json
 
   deploy:
     runs-on: ubuntu-latest
@@ -40,8 +48,8 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write  # This is required for requesting the JWT
+      contents: read   # This is required for actions/checkout
   
     steps:
       - name: Download artifact from build job
