@@ -6,6 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -63,5 +66,16 @@ public class PostController {
     public ResponseEntity<List<Post>> getAllDraftPosts() {
         var posts = postService.getAllDraftPosts();
         return ResponseEntity.ok(posts);
+    }
+    
+    @RestController
+    public static class TestController {
+        @GetMapping("/test")
+        public String testEndpoint() {
+            String deployedAt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss z")
+                .withZone(ZoneId.of("Asia/Tokyo"))
+                .format(Instant.now());
+            return "<html><body><h1 style='font-size:48px;'>Hello World! 🌍</h1><p style='font-size:24px;'>Deployed at: " + deployedAt + "</p></body></html>";
+        }
     }
 }
