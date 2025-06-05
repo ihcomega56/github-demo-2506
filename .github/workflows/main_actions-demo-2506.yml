@@ -77,7 +77,7 @@ jobs:
         with:
           app-name: 'actions-demo-2506'
           slot-name: 'Production'
-          package: 'java-app/build/libs/demo-0.0.1-SNAPSHOT.jar'
+          package: 'libs/demo-0.0.1-SNAPSHOT.jar'
 
       
       - name: Notify Teams
