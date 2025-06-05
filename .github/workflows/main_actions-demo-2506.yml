@@ -67,10 +67,7 @@ jobs:
           package: 'demo-0.0.1-SNAPSHOT.jar'
       
       - name: Notify Teams
-        uses: microsoft/teams-apps-github-actions@v1
-        with:
-          webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
-          message: 'デプロイが完了しました！
-          title: 'デプロイ通知'
-          color: '00FF00' # Green color for success
-          
+        run: |
+          curl -H "Content-Type: application/json" \
+               -d '{"text": "デプロイが完了しました！"}' \
+               ${{ secrets.TEAMS_WEBHOOK_URL }}
