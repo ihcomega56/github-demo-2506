@@ -140,7 +140,7 @@ class PostTest {
     void matchesSearchCriteria_withDraftPost_shouldReturnFalse() {
         // given - 下書き投稿と空の検索条件
         Post draftPost = new Post("Test content"); // デフォルトで下書き状態
-        Post.SearchParams searchParams = new Post.SearchParams();
+        Post.SearchParams searchParams = new Post.SearchParams(null, null, null);
 
         // when - 検索条件とのマッチングを確認
         boolean result = draftPost.matchesSearchCriteria(searchParams);
@@ -175,8 +175,7 @@ class PostTest {
         // given - 公開投稿と小文字のキーワード検索条件
         Post post = new Post("Hello World Test");
         post.setDraft(false); // 公開状態
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setContentKeyword("hello"); // 小文字で検索
+        Post.SearchParams searchParams = new Post.SearchParams("hello", null, null);
 
         // when - キーワード検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -194,8 +193,7 @@ class PostTest {
         // given - 公開投稿と存在しないキーワード
         Post post = new Post("Hello World");
         post.setDraft(false); // 公開状態
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setContentKeyword("xyz"); // 存在しないキーワード
+        Post.SearchParams searchParams = new Post.SearchParams("xyz", null, null);
 
         // when - キーワード検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -214,8 +212,7 @@ class PostTest {
         Post post = new Post("Content");
         post.setDraft(false); // 公開
         Instant searchDate = post.getPublishedAt().minusSeconds(3600); // 公開時刻より1時間前
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setPublishedAfter(searchDate);
+        Post.SearchParams searchParams = new Post.SearchParams(null, searchDate, null);
 
         // when - 公開日時以降の検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -234,8 +231,7 @@ class PostTest {
         Post post = new Post("Content");
         post.setDraft(false); // 公開
         Instant searchDate = post.getPublishedAt().plusSeconds(3600); // 公開時刻より1時間後
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setPublishedAfter(searchDate);
+        Post.SearchParams searchParams = new Post.SearchParams(null, searchDate, null);
 
         // when - 公開日時以降の検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -254,8 +250,7 @@ class PostTest {
         Post post = new Post("Content");
         post.setDraft(false); // 公開
         Instant searchDate = post.getPublishedAt().plusSeconds(3600); // 公開時刻より1時間後
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setPublishedBefore(searchDate);
+        Post.SearchParams searchParams = new Post.SearchParams(null, null, searchDate);
 
         // when - 公開日時以前の検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -274,8 +269,7 @@ class PostTest {
         Post post = new Post("Content");
         post.setDraft(false); // 公開
         Instant searchDate = post.getPublishedAt().minusSeconds(3600); // 公開時刻より1時間前
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setPublishedBefore(searchDate);
+        Post.SearchParams searchParams = new Post.SearchParams(null, null, searchDate);
 
         // when - 公開日時以前の検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);

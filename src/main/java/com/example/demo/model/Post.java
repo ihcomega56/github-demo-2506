@@ -83,27 +83,27 @@ public class Post {
             return true;
         }
         
-        if (searchParams.getContentKeyword() != null && !searchParams.getContentKeyword().isEmpty()) {
+        if (searchParams.contentKeyword() != null && !searchParams.contentKeyword().isEmpty()) {
             if (this.content == null) {
                 return false;
             }
             
             String contentLower = this.content.toLowerCase();
-            String keywordLower = searchParams.getContentKeyword().toLowerCase();
+            String keywordLower = searchParams.contentKeyword().toLowerCase();
             
             if (!contentLower.contains(keywordLower)) {
                 return false;
             }
         }
         
-        if (searchParams.getPublishedAfter() != null) {
-            if (this.publishedAt.isBefore(searchParams.getPublishedAfter())) {
+        if (searchParams.publishedAfter() != null) {
+            if (this.publishedAt.isBefore(searchParams.publishedAfter())) {
                 return false;
             }
         }
         
-        if (searchParams.getPublishedBefore() != null) {
-            if (this.publishedAt.isAfter(searchParams.getPublishedBefore())) {
+        if (searchParams.publishedBefore() != null) {
+            if (this.publishedAt.isAfter(searchParams.publishedBefore())) {
                 return false;
             }
         }
@@ -111,35 +111,11 @@ public class Post {
         return true;
     }
     
-    public static class SearchParams {
-        private String contentKeyword;
-        private Instant publishedAfter;
-        private Instant publishedBefore;
-        
-        public String getContentKeyword() {
-            return contentKeyword;
-        }
-        
-        public void setContentKeyword(String contentKeyword) {
-            this.contentKeyword = contentKeyword;
-        }
-        
-        public Instant getPublishedAfter() {
-            return publishedAfter;
-        }
-        
-        public void setPublishedAfter(Instant publishedAfter) {
-            this.publishedAfter = publishedAfter;
-        }
-        
-        public Instant getPublishedBefore() {
-            return publishedBefore;
-        }
-        
-        public void setPublishedBefore(Instant publishedBefore) {
-            this.publishedBefore = publishedBefore;
-        }
-    }
+    public record SearchParams(
+            String contentKeyword,
+            Instant publishedAfter,
+            Instant publishedBefore
+    ) {}
 
     @Override
     public boolean equals(Object o) {
