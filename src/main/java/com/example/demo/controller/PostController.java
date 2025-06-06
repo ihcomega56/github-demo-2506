@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.config.DeploymentInfo;
 import com.example.demo.model.Post;
 import com.example.demo.service.PostService;
 import org.springframework.http.HttpStatus;
@@ -19,14 +20,16 @@ import java.util.Optional;
 public class PostController {
     
     private final PostService postService;
+    private final DeploymentInfo deploymentInfo;
     
     /**
      * コントローラーのコンストラクタ。
      * 
      * @param postService 投稿サービスのインスタンス
      */
-    public PostController(PostService postService) {
+    public PostController(PostService postService, DeploymentInfo deploymentInfo) {
         this.postService = postService;
+        this.deploymentInfo = deploymentInfo;
     }
     
     /**
@@ -106,5 +109,13 @@ public class PostController {
     public ResponseEntity<List<Post>> getAllDraftPosts() {
         var posts = postService.getAllDraftPosts();
         return ResponseEntity.ok(posts);
+    }
+    
+    @RestController
+    public class TestController {
+        @GetMapping("/test")
+        public String testEndpoint() {
+            return "<html><body><h1 style='font-size:48px;'>Hello World! 🌍</h1><p style='font-size:24px;'>Deployed at: " + deploymentInfo.getDeployedAt() + "</p></body></html>";
+        }
     }
 }

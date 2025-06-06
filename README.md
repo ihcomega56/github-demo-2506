@@ -61,7 +61,7 @@ graph TD
     Client([クライアント]) -->|リクエスト| API[API Layer\nPostController]
     API -->|処理委譲| Service[Service Layer\nPostService]
     Service -->|データ操作| Model[Model Layer\nPost]
-    Model -->|保存| DB[(インメモリ\nストレージ)]
+    Model -->|保存| DB[(インメモリストレージ)]
     
     API -->|レスポンス| Client
 ```
