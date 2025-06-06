@@ -38,12 +38,12 @@ class PostServiceTest {
 
         // then - 作成された投稿の検証
         assertNotNull(result); // 投稿が作成されていること
-        assertEquals(content, result.getContent()); // コンテンツが正しく設定されていること
+        assertEquals(content, result.content()); // コンテンツが正しく設定されていること
         assertTrue(result.isDraft()); // 下書き状態であること
-        assertNotNull(result.getId()); // IDが生成されていること
-        assertNotNull(result.getCreatedAt()); // 作成日時が設定されていること
-        assertNotNull(result.getUpdatedAt()); // 更新日時が設定されていること
-        assertNull(result.getPublishedAt()); // 公開日時は未設定であること
+        assertNotNull(result.id()); // IDが生成されていること
+        assertNotNull(result.createdAt()); // 作成日時が設定されていること
+        assertNotNull(result.updatedAt()); // 更新日時が設定されていること
+        assertNull(result.publishedAt()); // 公開日時は未設定であること
     }
 
     /**
@@ -61,7 +61,7 @@ class PostServiceTest {
         Post post2 = postService.createDraft(content2);
 
         // then - IDが重複していないことを確認
-        assertNotEquals(post1.getId(), post2.getId());
+        assertNotEquals(post1.id(), post2.id());
     }
 
     /**
@@ -72,16 +72,16 @@ class PostServiceTest {
     void publishPost_shouldPublishExistingDraft() {
         // given - 公開対象の下書きを事前に作成
         Post draft = postService.createDraft("Draft content");
-        Long draftId = draft.getId();
+        Long draftId = draft.id();
 
         // when - 下書きを公開
         Post result = postService.publishPost(draftId);
 
         // then - 公開処理の結果を検証
         assertNotNull(result); // 公開された投稿が返されること
-        assertEquals(draftId, result.getId()); // IDが変更されていないこと
+        assertEquals(draftId, result.id()); // IDが変更されていないこと
         assertFalse(result.isDraft()); // 下書き状態が解除されていること
-        assertNotNull(result.getPublishedAt()); // 公開日時が設定されていること
+        assertNotNull(result.publishedAt()); // 公開日時が設定されていること
     }
 
     /**
@@ -108,7 +108,7 @@ class PostServiceTest {
     void publishPost_shouldReturnNullForAlreadyPublishedPost() {
         // given - 下書きを作成して一度公開
         Post draft = postService.createDraft("Draft content");
-        Long draftId = draft.getId();
+        Long draftId = draft.id();
         postService.publishPost(draftId); // 1回目の公開
 
         // when - 同じ投稿を再度公開しようと試行
@@ -126,7 +126,7 @@ class PostServiceTest {
     void deletePost_shouldReturnTrueForExistingPost() {
         // given - 削除対象の投稿を事前に作成
         Post post = postService.createDraft("Content to delete");
-        Long postId = post.getId();
+        Long postId = post.id();
 
         // when - 投稿を削除
         boolean result = postService.deletePost(postId);
@@ -160,15 +160,15 @@ class PostServiceTest {
     void getPost_shouldReturnExistingPost() {
         // given - 取得対象の投稿を事前に作成
         Post originalPost = postService.createDraft("Test content");
-        Long postId = originalPost.getId();
+        Long postId = originalPost.id();
 
         // when - 投稿を取得
         Post result = postService.getPost(postId);
 
         // then - 正しい投稿が取得されることを確認
         assertNotNull(result); // 投稿が取得できること
-        assertEquals(postId, result.getId()); // IDが一致すること
-        assertEquals("Test content", result.getContent()); // コンテンツが一致すること
+        assertEquals(postId, result.id()); // IDが一致すること
+        assertEquals("Test content", result.content()); // コンテンツが一致すること
     }
 
     /**
@@ -197,14 +197,14 @@ class PostServiceTest {
         Post draft1 = postService.createDraft("Draft 1");
         Post draft2 = postService.createDraft("Draft 2");
         Post published1 = postService.createDraft("Published 1");
-        postService.publishPost(published1.getId()); // 1つだけ公開
+        postService.publishPost(published1.id()); // 1つだけ公開
 
         // when - 公開投稿一覧を取得
         List<Post> result = postService.getAllPublishedPosts();
 
         // then - 公開投稿のみが取得されることを確認
         assertEquals(1, result.size()); // 公開投稿は1件のみ
-        assertEquals(published1.getId(), result.get(0).getId()); // 正しい投稿が取得されること
+        assertEquals(published1.id(), result.get(0).id()); // 正しい投稿が取得されること
         assertFalse(result.get(0).isDraft()); // 公開状態であることを確認
     }
 
@@ -234,7 +234,7 @@ class PostServiceTest {
         Post draft1 = postService.createDraft("Draft 1");
         Post draft2 = postService.createDraft("Draft 2");
         Post published = postService.createDraft("Published");
-        postService.publishPost(published.getId()); // 1つを公開
+        postService.publishPost(published.id()); // 1つを公開
 
         // when - 下書き投稿一覧を取得
         List<Post> result = postService.getAllDraftPosts();
@@ -252,7 +252,7 @@ class PostServiceTest {
     void getAllDraftPosts_shouldReturnEmptyListWhenNoDrafts() {
         // given - 公開投稿のみを作成（下書きなし）
         Post published = postService.createDraft("Published");
-        postService.publishPost(published.getId());
+        postService.publishPost(published.id());
 
         // when - 下書き投稿一覧を取得
         List<Post> result = postService.getAllDraftPosts();

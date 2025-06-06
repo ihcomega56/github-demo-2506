@@ -19,15 +19,15 @@ class PostTest {
     @Test
     void constructor_withoutContent_shouldCreateDraftPost() {
         // when - デフォルトコンストラクタで投稿を作成
-        Post post = new Post();
+        Post post = Post.createDraft();
 
         // then - 初期状態の検証
-        assertNull(post.getId()); // IDは未設定
-        assertNull(post.getContent()); // コンテンツは未設定
+        assertNull(post.id()); // IDは未設定
+        assertNull(post.content()); // コンテンツは未設定
         assertTrue(post.isDraft()); // デフォルトで下書き状態
-        assertNotNull(post.getCreatedAt()); // 作成日時は自動設定
-        assertNull(post.getUpdatedAt()); // 更新日時は未設定
-        assertNull(post.getPublishedAt()); // 公開日時は未設定
+        assertNotNull(post.createdAt()); // 作成日時は自動設定
+        assertNull(post.updatedAt()); // 更新日時は未設定
+        assertNull(post.publishedAt()); // 公開日時は未設定
     }
 
     /**
@@ -40,15 +40,15 @@ class PostTest {
         String content = "Test content";
 
         // when - コンテンツ付きで投稿を作成
-        Post post = new Post(content);
+        Post post = Post.createDraft(content);
 
         // then - 初期状態の検証
-        assertNull(post.getId()); // IDは未設定
-        assertEquals(content, post.getContent()); // 指定したコンテンツが設定されること
+        assertNull(post.id()); // IDは未設定
+        assertEquals(content, post.content()); // 指定したコンテンツが設定されること
         assertTrue(post.isDraft()); // デフォルトで下書き状態
-        assertNotNull(post.getCreatedAt()); // 作成日時は自動設定
-        assertNotNull(post.getUpdatedAt()); // 更新日時は自動設定（コンテンツ設定時）
-        assertNull(post.getPublishedAt()); // 公開日時は未設定
+        assertNotNull(post.createdAt()); // 作成日時は自動設定
+        assertNotNull(post.updatedAt()); // 更新日時は自動設定（コンテンツ設定時）
+        assertNull(post.publishedAt()); // 公開日時は未設定
     }
 
     /**
@@ -58,8 +58,8 @@ class PostTest {
     @Test
     void setContent_shouldUpdateContentAndUpdatedAt() {
         // given - 初期コンテンツで投稿を作成
-        Post post = new Post("Original content");
-        Instant originalUpdatedAt = post.getUpdatedAt();
+        Post post = Post.createDraft("Original content");
+        Instant originalUpdatedAt = post.updatedAt();
         
         // 時間差を確保するため少し待機
         try {
@@ -69,11 +69,11 @@ class PostTest {
         }
 
         // when - コンテンツを更新
-        post.setContent("New content");
+        Post updatedPost = post.withContent("New content");
 
         // then - コンテンツと更新日時の変更を確認
-        assertEquals("New content", post.getContent()); // 新しいコンテンツが設定されること
-        assertTrue(post.getUpdatedAt().isAfter(originalUpdatedAt)); // 更新日時が新しくなること
+        assertEquals("New content", updatedPost.content()); // 新しいコンテンツが設定されること
+        assertTrue(updatedPost.updatedAt().isAfter(originalUpdatedAt)); // 更新日時が新しくなること
     }
 
     /**
@@ -83,15 +83,15 @@ class PostTest {
     @Test
     void setDraft_toFalse_shouldSetPublishedAtWhenNull() {
         // given - 下書き投稿を作成（公開日時は未設定）
-        Post post = new Post("Content");
-        assertNull(post.getPublishedAt()); // 初期状態では公開日時未設定
+        Post post = Post.createDraft("Content");
+        assertNull(post.publishedAt()); // 初期状態では公開日時未設定
 
         // when - 下書き状態を解除（公開）
-        post.setDraft(false);
+        Post publishedPost = post.withDraft(false);
 
         // then - 公開状態と公開日時の設定を確認
-        assertFalse(post.isDraft()); // 公開状態になること
-        assertNotNull(post.getPublishedAt()); // 公開日時が自動設定されること
+        assertFalse(publishedPost.isDraft()); // 公開状態になること
+        assertNotNull(publishedPost.publishedAt()); // 公開日時が自動設定されること
     }
 
     /**
@@ -101,16 +101,16 @@ class PostTest {
     @Test
     void setDraft_toFalse_shouldNotOverrideExistingPublishedAt() {
         // given - カスタム公開日時を事前設定
-        Post post = new Post("Content");
+        Post post = Post.createDraft("Content");
         Instant customPublishedAt = Instant.now().minusSeconds(3600); // 1時間前
-        post.setPublishedAt(customPublishedAt);
+        post = post.withPublishedAt(customPublishedAt);
 
         // when - 下書き状態を解除（公開）
-        post.setDraft(false);
+        Post publishedPost = post.withDraft(false);
 
         // then - 既存の公開日時が保持されることを確認
-        assertFalse(post.isDraft()); // 公開状態になること
-        assertEquals(customPublishedAt, post.getPublishedAt()); // 既存の公開日時が保持されること
+        assertFalse(publishedPost.isDraft()); // 公開状態になること
+        assertEquals(customPublishedAt, publishedPost.publishedAt()); // 既存の公開日時が保持されること
     }
 
     /**
@@ -120,16 +120,16 @@ class PostTest {
     @Test
     void setDraft_toTrue_shouldNotAffectPublishedAt() {
         // given - 投稿を一度公開
-        Post post = new Post("Content");
-        post.setDraft(false); // 公開
-        Instant publishedAt = post.getPublishedAt();
+        Post post = Post.createDraft("Content");
+        post = post.withDraft(false); // 公開
+        Instant publishedAt = post.publishedAt();
 
         // when - 下書き状態に戻す
-        post.setDraft(true);
+        Post draftPost = post.withDraft(true);
 
         // then - 下書き状態になっても公開日時は保持されることを確認
-        assertTrue(post.isDraft()); // 下書き状態に戻ること
-        assertEquals(publishedAt, post.getPublishedAt()); // 公開日時は保持されること
+        assertTrue(draftPost.isDraft()); // 下書き状態に戻ること
+        assertEquals(publishedAt, draftPost.publishedAt()); // 公開日時は保持されること
     }
 
     /**
@@ -139,8 +139,8 @@ class PostTest {
     @Test
     void matchesSearchCriteria_withDraftPost_shouldReturnFalse() {
         // given - 下書き投稿と空の検索条件
-        Post draftPost = new Post("Test content"); // デフォルトで下書き状態
-        Post.SearchParams searchParams = new Post.SearchParams();
+        Post draftPost = Post.createDraft("Test content"); // デフォルトで下書き状態
+        Post.SearchParams searchParams = new Post.SearchParams(null, null, null);
 
         // when - 検索条件とのマッチングを確認
         boolean result = draftPost.matchesSearchCriteria(searchParams);
@@ -156,8 +156,8 @@ class PostTest {
     @Test
     void matchesSearchCriteria_withPublishedPostAndNullParams_shouldReturnTrue() {
         // given - 公開投稿と検索条件null
-        Post post = new Post("Test content");
-        post.setDraft(false); // 公開状態に変更
+        Post post = Post.createDraft("Test content");
+        post = post.withDraft(false); // 公開状態に変更
 
         // when - null条件での検索マッチングを確認
         boolean result = post.matchesSearchCriteria(null);
@@ -173,10 +173,9 @@ class PostTest {
     @Test
     void matchesSearchCriteria_withContentKeyword_shouldMatchCaseInsensitive() {
         // given - 公開投稿と小文字のキーワード検索条件
-        Post post = new Post("Hello World Test");
-        post.setDraft(false); // 公開状態
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setContentKeyword("hello"); // 小文字で検索
+        Post post = Post.createDraft("Hello World Test");
+        post = post.withDraft(false); // 公開状態
+        Post.SearchParams searchParams = new Post.SearchParams("hello", null, null);
 
         // when - キーワード検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -192,10 +191,9 @@ class PostTest {
     @Test
     void matchesSearchCriteria_withContentKeyword_shouldNotMatchWhenNotContained() {
         // given - 公開投稿と存在しないキーワード
-        Post post = new Post("Hello World");
-        post.setDraft(false); // 公開状態
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setContentKeyword("xyz"); // 存在しないキーワード
+        Post post = Post.createDraft("Hello World");
+        post = post.withDraft(false); // 公開状態
+        Post.SearchParams searchParams = new Post.SearchParams("xyz", null, null);
 
         // when - キーワード検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -211,11 +209,10 @@ class PostTest {
     @Test
     void matchesSearchCriteria_withPublishedAfter_shouldMatchWhenPublishedAfterDate() {
         // given - 公開投稿と検索基準日時（投稿より1時間前）
-        Post post = new Post("Content");
-        post.setDraft(false); // 公開
-        Instant searchDate = post.getPublishedAt().minusSeconds(3600); // 公開時刻より1時間前
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setPublishedAfter(searchDate);
+        Post post = Post.createDraft("Content");
+        post = post.withDraft(false); // 公開
+        Instant searchDate = post.publishedAt().minusSeconds(3600); // 公開時刻より1時間前
+        Post.SearchParams searchParams = new Post.SearchParams(null, searchDate, null);
 
         // when - 公開日時以降の検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -231,11 +228,10 @@ class PostTest {
     @Test
     void matchesSearchCriteria_withPublishedAfter_shouldNotMatchWhenPublishedBeforeDate() {
         // given - 公開投稿と検索基準日時（投稿より1時間後）
-        Post post = new Post("Content");
-        post.setDraft(false); // 公開
-        Instant searchDate = post.getPublishedAt().plusSeconds(3600); // 公開時刻より1時間後
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setPublishedAfter(searchDate);
+        Post post = Post.createDraft("Content");
+        post = post.withDraft(false); // 公開
+        Instant searchDate = post.publishedAt().plusSeconds(3600); // 公開時刻より1時間後
+        Post.SearchParams searchParams = new Post.SearchParams(null, searchDate, null);
 
         // when - 公開日時以降の検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -251,11 +247,10 @@ class PostTest {
     @Test
     void matchesSearchCriteria_withPublishedBefore_shouldMatchWhenPublishedBeforeDate() {
         // given - 公開投稿と検索基準日時（投稿より1時間後）
-        Post post = new Post("Content");
-        post.setDraft(false); // 公開
-        Instant searchDate = post.getPublishedAt().plusSeconds(3600); // 公開時刻より1時間後
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setPublishedBefore(searchDate);
+        Post post = Post.createDraft("Content");
+        post = post.withDraft(false); // 公開
+        Instant searchDate = post.publishedAt().plusSeconds(3600); // 公開時刻より1時間後
+        Post.SearchParams searchParams = new Post.SearchParams(null, null, searchDate);
 
         // when - 公開日時以前の検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -271,11 +266,10 @@ class PostTest {
     @Test
     void matchesSearchCriteria_withPublishedBefore_shouldNotMatchWhenPublishedAfterDate() {
         // given - 公開投稿と検索基準日時（投稿より1時間前）
-        Post post = new Post("Content");
-        post.setDraft(false); // 公開
-        Instant searchDate = post.getPublishedAt().minusSeconds(3600); // 公開時刻より1時間前
-        Post.SearchParams searchParams = new Post.SearchParams();
-        searchParams.setPublishedBefore(searchDate);
+        Post post = Post.createDraft("Content");
+        post = post.withDraft(false); // 公開
+        Instant searchDate = post.publishedAt().minusSeconds(3600); // 公開時刻より1時間前
+        Post.SearchParams searchParams = new Post.SearchParams(null, null, searchDate);
 
         // when - 公開日時以前の検索を実行
         boolean result = post.matchesSearchCriteria(searchParams);
@@ -291,10 +285,10 @@ class PostTest {
     @Test
     void equals_shouldReturnTrueForSameId() {
         // given - 同じIDを持つ2つの投稿（コンテンツは異なる）
-        Post post1 = new Post("Content 1");
-        post1.setId(1L);
-        Post post2 = new Post("Content 2");
-        post2.setId(1L); // 同じID
+        Post post1 = Post.createDraft("Content 1");
+        post1 = post1.withId(1L);
+        Post post2 = Post.createDraft("Content 2");
+        post2 = post2.withId(1L); // 同じID
 
         // when & then - 同じIDなのでequalsでtrueが返されることを確認
         assertEquals(post1, post2);
@@ -307,10 +301,10 @@ class PostTest {
     @Test
     void equals_shouldReturnFalseForDifferentId() {
         // given - 異なるIDを持つ2つの投稿（コンテンツは同じ）
-        Post post1 = new Post("Content");
-        post1.setId(1L);
-        Post post2 = new Post("Content");
-        post2.setId(2L); // 異なるID
+        Post post1 = Post.createDraft("Content");
+        post1 = post1.withId(1L);
+        Post post2 = Post.createDraft("Content");
+        post2 = post2.withId(2L); // 異なるID
 
         // when & then - 異なるIDなのでequalsでfalseが返されることを確認
         assertNotEquals(post1, post2);
@@ -323,10 +317,10 @@ class PostTest {
     @Test
     void hashCode_shouldBeConsistentWithEquals() {
         // given - 同じIDを持つ2つの投稿（equalsでtrue）
-        Post post1 = new Post("Content 1");
-        post1.setId(1L);
-        Post post2 = new Post("Content 2");
-        post2.setId(1L); // 同じID
+        Post post1 = Post.createDraft("Content 1");
+        post1 = post1.withId(1L);
+        Post post2 = Post.createDraft("Content 2");
+        post2 = post2.withId(1L); // 同じID
 
         // when & then - equalsで等しいオブジェクトのhashCodeが一致することを確認
         assertEquals(post1.hashCode(), post2.hashCode());
@@ -339,8 +333,8 @@ class PostTest {
     @Test
     void toString_shouldContainKeyFields() {
         // given - テスト用の投稿を作成
-        Post post = new Post("Test content");
-        post.setId(1L);
+        Post post = Post.createDraft("Test content");
+        post = post.withId(1L);
 
         // when - toString()を呼び出し
         String result = post.toString();

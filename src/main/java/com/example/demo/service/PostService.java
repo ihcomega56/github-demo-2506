@@ -17,18 +17,18 @@ public class PostService {
     private final AtomicLong idGenerator = new AtomicLong(1L);
 
     public Post createDraft(String content) {
-        Post post = new Post(content);
-        post.setId(idGenerator.getAndIncrement());
-        posts.put(post.getId(), post);
+        Post post = Post.createDraft(content);
+        post = post.withId(idGenerator.getAndIncrement());
+        posts.put(post.id(), post);
         return post;
     }
     
     public Post publishPost(Long id) {
         Post post = posts.get(id);
         if (post != null && post.isDraft()) {
-            post.setDraft(false);
-            post.setPublishedAt(new Date().toInstant());
-            return post;
+            Post publishedPost = post.withDraft(false);
+            posts.put(id, publishedPost); // Replace the immutable object in the map
+            return publishedPost;
         }
         return null;
     }
