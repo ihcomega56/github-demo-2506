@@ -1,79 +1,78 @@
 package com.example.demo.model;
 
 import java.time.Instant;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Post {
-    private Long id;
-    private String content;
-    private Instant createdAt;
-    private Instant updatedAt;
-    private Instant publishedAt;
-    private boolean isDraft;
-
-    public Post() {
-        this.createdAt = Instant.now();
-        this.isDraft = true;
+public record Post(
+        Long id,
+        String content,
+        Instant createdAt,
+        Instant updatedAt,
+        Instant publishedAt,
+        @JsonProperty("draft") boolean isDraft
+) {
+    
+    // Factory method for creating a new draft post without content
+    public static Post createDraft() {
+        return new Post(
+                null,
+                null,
+                Instant.now(),
+                null,
+                null,
+                true
+        );
     }
-
-    public Post(String content) {
-        this.content = content;
-        this.createdAt = Instant.now();
-        this.updatedAt = Instant.now();
-        this.isDraft = true;
+    
+    // Factory method for creating a new draft post with content
+    public static Post createDraft(String content) {
+        Instant now = Instant.now();
+        return new Post(
+                null,
+                content,
+                now,
+                now,
+                null,
+                true
+        );
     }
-
-    public Long getId() {
-        return id;
+    
+    // Utility method to create a new Post with an updated id
+    public Post withId(Long id) {
+        return new Post(id, content, createdAt, updatedAt, publishedAt, isDraft);
     }
-
-    public void setId(Long id) {
-        this.id = id;
+    
+    // Utility method to create a new Post with updated content
+    public Post withContent(String content) {
+        return new Post(id, content, createdAt, Instant.now(), publishedAt, isDraft);
     }
-
-    public String getContent() {
-        return content;
+    
+    // Utility method to create a new Post with updated createdAt
+    public Post withCreatedAt(Instant createdAt) {
+        return new Post(id, content, createdAt, updatedAt, publishedAt, isDraft);
     }
-
-    public void setContent(String content) {
-        this.content = content;
-        this.updatedAt = Instant.now();
+    
+    // Utility method to create a new Post with updated updatedAt
+    public Post withUpdatedAt(Instant updatedAt) {
+        return new Post(id, content, createdAt, updatedAt, publishedAt, isDraft);
     }
-
-    public Instant getCreatedAt() {
-        return createdAt;
+    
+    // Utility method to create a new Post with updated publishedAt
+    public Post withPublishedAt(Instant publishedAt) {
+        return new Post(id, content, createdAt, updatedAt, publishedAt, isDraft);
     }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Instant getPublishedAt() {
-        return publishedAt;
-    }
-
-    public void setPublishedAt(Instant publishedAt) {
-        this.publishedAt = publishedAt;
-    }
-
-    public boolean isDraft() {
-        return isDraft;
-    }
-
-    public void setDraft(boolean draft) {
-        isDraft = draft;
+    
+    // Utility method to create a new Post with updated draft status
+    public Post withDraft(boolean draft) {
+        Instant newPublishedAt = publishedAt;
         if (!draft && publishedAt == null) {
-            publishedAt = Instant.now();
+            newPublishedAt = Instant.now();
         }
+        return new Post(id, content, createdAt, updatedAt, newPublishedAt, draft);
     }
 
+    
+    // Business logic method for search criteria matching
     public boolean matchesSearchCriteria(SearchParams searchParams) {
         if (this.isDraft || this.publishedAt == null) {
             return false;
@@ -111,12 +110,7 @@ public class Post {
         return true;
     }
     
-    public record SearchParams(
-            String contentKeyword,
-            Instant publishedAfter,
-            Instant publishedBefore
-    ) {}
-
+    // Override equals to only use id (like the original implementation)
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -126,11 +120,13 @@ public class Post {
         return id != null ? id.equals(post.id) : post.id == null;
     }
 
+    // Override hashCode to only use id (like the original implementation)
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }
 
+    // Override toString to match original format
     @Override
     public String toString() {
         return "Post{" +
@@ -139,4 +135,10 @@ public class Post {
                 ", isDraft=" + isDraft +
                 '}';
     }
+    
+    public record SearchParams(
+            String contentKeyword,
+            Instant publishedAfter,
+            Instant publishedBefore
+    ) {}
 }

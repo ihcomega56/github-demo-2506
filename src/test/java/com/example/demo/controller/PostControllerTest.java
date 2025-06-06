@@ -48,8 +48,8 @@ class PostControllerTest {
     void createDraft_shouldReturnCreatedPost() throws Exception {
         // given - テストデータの準備
         String content = "Test content";
-        Post createdPost = new Post(content);
-        createdPost.setId(1L);
+        Post createdPost = Post.createDraft(content);
+        createdPost = createdPost.withId(1L);
 
         when(postService.createDraft(content)).thenReturn(createdPost);
 
@@ -84,9 +84,9 @@ class PostControllerTest {
     void publishPost_shouldReturnPublishedPost() throws Exception {
         // given - 公開対象の投稿データを準備
         Long postId = 1L;
-        Post publishedPost = new Post("Content");
-        publishedPost.setId(postId);
-        publishedPost.setDraft(false); // 公開状態に設定
+        Post publishedPost = Post.createDraft("Content");
+        publishedPost = publishedPost.withId(postId);
+        publishedPost = publishedPost.withDraft(false); // 公開状態に設定
 
         when(postService.publishPost(postId)).thenReturn(publishedPost);
 
@@ -120,8 +120,8 @@ class PostControllerTest {
     void getPost_shouldReturnExistingPost() throws Exception {
         // given - 取得対象の投稿データを準備
         Long postId = 1L;
-        Post post = new Post("Content");
-        post.setId(postId);
+        Post post = Post.createDraft("Content");
+        post = post.withId(postId);
 
         when(postService.getPost(postId)).thenReturn(post);
 
@@ -184,12 +184,12 @@ class PostControllerTest {
     @Test
     void getAllPublishedPosts_shouldReturnListOfPublishedPosts() throws Exception {
         // given - 公開投稿リストを準備
-        Post post1 = new Post("Content 1");
-        post1.setId(1L);
-        post1.setDraft(false); // 公開状態
-        Post post2 = new Post("Content 2");
-        post2.setId(2L);
-        post2.setDraft(false); // 公開状態
+        Post post1 = Post.createDraft("Content 1");
+        post1 = post1.withId(1L);
+        post1 = post1.withDraft(false); // 公開状態
+        Post post2 = Post.createDraft("Content 2");
+        post2 = post2.withId(2L);
+        post2 = post2.withDraft(false); // 公開状態
         List<Post> publishedPosts = Arrays.asList(post1, post2);
 
         when(postService.getAllPublishedPosts()).thenReturn(publishedPosts);
@@ -209,10 +209,10 @@ class PostControllerTest {
     @Test
     void getAllDraftPosts_shouldReturnListOfDraftPosts() throws Exception {
         // given - 下書き投稿リストを準備
-        Post draft1 = new Post("Draft 1");
-        draft1.setId(1L); // デフォルトで下書き状態
-        Post draft2 = new Post("Draft 2");
-        draft2.setId(2L); // デフォルトで下書き状態
+        Post draft1 = Post.createDraft("Draft 1");
+        draft1 = draft1.withId(1L); // デフォルトで下書き状態
+        Post draft2 = Post.createDraft("Draft 2");
+        draft2 = draft2.withId(2L); // デフォルトで下書き状態
         List<Post> draftPosts = Arrays.asList(draft1, draft2);
 
         when(postService.getAllDraftPosts()).thenReturn(draftPosts);
