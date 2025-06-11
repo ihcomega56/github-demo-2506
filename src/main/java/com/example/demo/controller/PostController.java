@@ -7,13 +7,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * 投稿に関するAPIエンドポイントを提供するコントローラークラス。
+ * 投稿の作成、更新、削除、取得など基本的なCRUD操作を担当します。
+ */
 @RestController
 @RequestMapping("/api/posts")
 public class PostController {
@@ -21,11 +22,22 @@ public class PostController {
     private final PostService postService;
     private final DeploymentInfo deploymentInfo;
     
+    /**
+     * コントローラーのコンストラクタ。
+     * 
+     * @param postService 投稿サービスのインスタンス
+     */
     public PostController(PostService postService, DeploymentInfo deploymentInfo) {
         this.postService = postService;
         this.deploymentInfo = deploymentInfo;
     }
     
+    /**
+     * 下書き投稿を作成するエンドポイント。
+     * 
+     * @param payload 投稿内容を含むリクエストボディ（"content"キーが必須）
+     * @return 作成された投稿情報とHTTPステータス201（Created）、またはエラー時は400（Bad Request）
+     */
     @PostMapping("/drafts")
     public ResponseEntity<Post> createDraft(@RequestBody Map<String, String> payload) {
         var content = payload.get("content");
@@ -38,6 +50,12 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
     
+    /**
+     * 下書き投稿を公開するエンドポイント。
+     * 
+     * @param id 公開する投稿のID
+     * @return 公開された投稿情報とHTTPステータス200（OK）、または投稿が見つからない場合は404（Not Found）
+     */
     @PutMapping("/drafts/{id}/publish")
     public ResponseEntity<Post> publishPost(@PathVariable Long id) {
         return Optional.ofNullable(postService.publishPost(id))
@@ -45,6 +63,12 @@ public class PostController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
+    /**
+     * 指定されたIDの投稿を取得するエンドポイント。
+     * 
+     * @param id 取得する投稿のID
+     * @return 投稿情報とHTTPステータス200（OK）、または投稿が見つからない場合は404（Not Found）
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Post> getPost(@PathVariable Long id) {
         return Optional.ofNullable(postService.getPost(id))
@@ -52,6 +76,12 @@ public class PostController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
+    /**
+     * 指定されたIDの投稿を削除するエンドポイント。
+     * 
+     * @param id 削除する投稿のID
+     * @return 削除成功時はHTTPステータス204（No Content）、投稿が見つからない場合は404（Not Found）
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         return postService.deletePost(id) 
@@ -59,12 +89,22 @@ public class PostController {
                 : ResponseEntity.notFound().build();
     }
     
+    /**
+     * 公開済みの全投稿を取得するエンドポイント。
+     * 
+     * @return 公開済み投稿のリストとHTTPステータス200（OK）
+     */
     @GetMapping("/published")
     public ResponseEntity<List<Post>> getAllPublishedPosts() {
         var posts = postService.getAllPublishedPosts();
         return ResponseEntity.ok(posts);
     }
     
+    /**
+     * 下書き状態の全投稿を取得するエンドポイント。
+     * 
+     * @return 下書き投稿のリストとHTTPステータス200（OK）
+     */
     @GetMapping("/drafts")
     public ResponseEntity<List<Post>> getAllDraftPosts() {
         var posts = postService.getAllDraftPosts();
