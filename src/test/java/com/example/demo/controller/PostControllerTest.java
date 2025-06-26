@@ -182,7 +182,7 @@ class PostControllerTest {
      * 公開された投稿のリストが正しく返されることを確認する
      */
     @Test
-    void getAllPublishedPosts_shouldReturnListOfPublishedPosts() throws Exception {
+    void getPublishedPosts_shouldReturnListOfPublishedPosts() throws Exception {
         // given - 公開投稿リストを準備
         Post post1 = new Post("Content 1");
         post1.setId(1L);
@@ -207,7 +207,7 @@ class PostControllerTest {
      * 下書き状態の投稿のリストが正しく返されることを確認する
      */
     @Test
-    void getAllDraftPosts_shouldReturnListOfDraftPosts() throws Exception {
+    void getDraftPosts_shouldReturnListOfDraftPosts() throws Exception {
         // given - 下書き投稿リストを準備
         Post draft1 = new Post("Draft 1");
         draft1.setId(1L); // デフォルトで下書き状態
