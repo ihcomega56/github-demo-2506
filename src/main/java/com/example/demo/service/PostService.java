@@ -75,7 +75,7 @@ public class PostService {
      * 
      * @return 公開済み投稿のリスト
      */
-    public List<Post> getAllPublishedPosts() {
+    public List<Post> getPublishedPosts() {
         return posts.values().stream()
                 .filter(post -> !post.isDraft())
                 .collect(Collectors.toList());
@@ -86,7 +86,7 @@ public class PostService {
      * 
      * @return 下書き投稿のリスト
      */
-    public List<Post> getAllDraftPosts() {
+    public List<Post> getDraftPosts() {
         return posts.values().stream()
                 .filter(Post::isDraft)
                 .collect(Collectors.toList());

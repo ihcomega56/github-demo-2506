@@ -96,7 +96,7 @@ public class PostController {
      */
     @GetMapping("/published")
     public ResponseEntity<List<Post>> getAllPublishedPosts() {
-        var posts = postService.getAllPublishedPosts();
+        var posts = postService.getPublishedPosts();
         return ResponseEntity.ok(posts);
     }
     
@@ -107,7 +107,7 @@ public class PostController {
      */
     @GetMapping("/drafts")
     public ResponseEntity<List<Post>> getAllDraftPosts() {
-        var posts = postService.getAllDraftPosts();
+        var posts = postService.getDraftPosts();
         return ResponseEntity.ok(posts);
     }
     

@@ -192,7 +192,7 @@ class PostControllerTest {
         post2.setDraft(false); // 公開状態
         List<Post> publishedPosts = Arrays.asList(post1, post2);
 
-        when(postService.getAllPublishedPosts()).thenReturn(publishedPosts);
+        when(postService.getPublishedPosts()).thenReturn(publishedPosts);
 
         // when & then - 公開投稿一覧APIを呼び出してレスポンスを検証
         mockMvc.perform(get("/api/posts/published"))
@@ -215,7 +215,7 @@ class PostControllerTest {
         draft2.setId(2L); // デフォルトで下書き状態
         List<Post> draftPosts = Arrays.asList(draft1, draft2);
 
-        when(postService.getAllDraftPosts()).thenReturn(draftPosts);
+        when(postService.getDraftPosts()).thenReturn(draftPosts);
 
         // when & then - 下書き投稿一覧APIを呼び出してレスポンスを検証
         mockMvc.perform(get("/api/posts/drafts"))
