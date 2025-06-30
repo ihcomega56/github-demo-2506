@@ -10,6 +10,7 @@ classDiagram
         Instant updatedAt
         Instant publishedAt
         boolean isDraft
+        int likes
         +getId() Long
         +setId(Long id) void
         +getContent() String
@@ -18,6 +19,9 @@ classDiagram
         +setDraft(boolean isDraft) void
         +getPublishedAt() Instant
         +setPublishedAt(Instant publishedAt) void
+        +getLikes() int
+        +setLikes(int likes) void
+        +incrementLikes() int
     }
     
     class PostService {
@@ -30,6 +34,8 @@ classDiagram
         +getPublishedPosts() List~Post~
         +getDraftPosts() List~Post~
         +searchPosts(SearchParams params) List~Post~
+        +likePost(Long id) Post
+        +getPostLikes(Long id) Integer
     }
     
     class PostController {
@@ -40,6 +46,8 @@ classDiagram
         +deletePost(Long id) ResponseEntity~void~
         +getPublishedPosts() ResponseEntity~List~Post~~
         +getDraftPosts() ResponseEntity~List~Post~~
+        +likePost(Long id) ResponseEntity~Post~
+        +getPostLikes(Long id) ResponseEntity~Map~String, Integer~~
     }
     
     class SearchParams {
@@ -149,5 +157,15 @@ curl -X GET http://localhost:8080/api/posts/published
 ### 6. 下書き投稿の一覧取得
 ```bash
 curl -X GET http://localhost:8080/api/posts/drafts
+```
+
+### 7. 投稿にいいねを追加
+```bash
+curl -X POST http://localhost:8080/api/posts/{id}/like
+```
+
+### 8. 投稿のいいね数を取得
+```bash
+curl -X GET http://localhost:8080/api/posts/{id}/likes
 ```
 

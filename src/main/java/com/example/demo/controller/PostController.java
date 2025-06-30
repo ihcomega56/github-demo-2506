@@ -1,15 +1,23 @@
 package com.example.demo.controller;
 
-import com.example.demo.config.DeploymentInfo;
-import com.example.demo.model.Post;
-import com.example.demo.service.PostService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.config.DeploymentInfo;
+import com.example.demo.model.Post;
+import com.example.demo.service.PostService;
 
 /**
  * 投稿に関するAPIエンドポイントを提供するコントローラークラス。
@@ -109,6 +117,32 @@ public class PostController {
     public ResponseEntity<List<Post>> getAllDraftPosts() {
         var posts = postService.getAllDraftPosts();
         return ResponseEntity.ok(posts);
+    }
+    
+    /**
+     * 投稿にいいねを追加するエンドポイント。
+     *
+     * @param id いいねする投稿のID
+     * @return いいねが追加された投稿情報とHTTPステータス200（OK）、または投稿が見つからない場合は404（Not Found）
+     */
+    @PostMapping("/{id}/like")
+    public ResponseEntity<Post> likePost(@PathVariable Long id) {
+        return Optional.ofNullable(postService.likePost(id))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    
+    /**
+     * 投稿のいいね数を取得するエンドポイント。
+     *
+     * @param id いいね数を取得する投稿のID
+     * @return いいね数とHTTPステータス200（OK）、または投稿が見つからない場合は404（Not Found）
+     */
+    @GetMapping("/{id}/likes")
+    public ResponseEntity<Map<String, Integer>> getPostLikes(@PathVariable Long id) {
+        return Optional.ofNullable(postService.getPostLikes(id))
+                .map(likes -> ResponseEntity.ok(Map.of("likes", likes)))
+                .orElse(ResponseEntity.notFound().build());
     }
     
     @RestController
