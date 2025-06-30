@@ -1,14 +1,15 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Post;
-import org.springframework.stereotype.Service;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.example.demo.model.Post;
 
 /**
  * 投稿に関するビジネスロジックを提供するサービスクラス。
@@ -90,5 +91,34 @@ public class PostService {
         return posts.values().stream()
                 .filter(Post::isDraft)
                 .collect(Collectors.toList());
+    }
+    
+    /**
+     * 指定されたIDの投稿にいいねを追加します。
+     * 
+     * @param id いいねする投稿のID
+     * @return いいねが追加された投稿、または投稿が見つからない場合はnull
+     */
+    public Post likePost(Long id) {
+        Post post = posts.get(id);
+        if (post != null) {
+            post.incrementLikes();
+            return post;
+        }
+        return null;
+    }
+    
+    /**
+     * 指定されたIDの投稿のいいね数を取得します。
+     * 
+     * @param id いいね数を取得する投稿のID
+     * @return いいね数、または投稿が見つからない場合はnull
+     */
+    public Integer getPostLikes(Long id) {
+        Post post = posts.get(id);
+        if (post != null) {
+            return post.getLikes();
+        }
+        return null;
     }
 }

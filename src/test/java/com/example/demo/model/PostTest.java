@@ -1,10 +1,15 @@
 package com.example.demo.model;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * Postモデルクラスの動作とビジネスルールをテストするクラス
@@ -349,5 +354,59 @@ class PostTest {
         assertTrue(result.contains("id=1")); // IDが含まれること
         assertTrue(result.contains("content='Test content'")); // コンテンツが含まれること
         assertTrue(result.contains("isDraft=true")); // 下書き状態が含まれること
+    }
+    
+    /**
+     * いいね数の初期値テスト
+     * 新しい投稿が作成された際に、いいね数が0で初期化されることを確認する
+     */
+    @Test
+    void constructor_shouldInitializeLikesToZero() {
+        // when - 新しい投稿を作成
+        Post post = new Post("Test content");
+        
+        // then - いいね数が0で初期化されていることを確認
+        assertEquals(0, post.getLikes());
+    }
+    
+    /**
+     * いいね数設定メソッドのテスト
+     * setLikesメソッドでいいね数が正しく設定されることを確認する
+     */
+    @Test
+    void setLikes_shouldUpdateLikesCount() {
+        // given - 新しい投稿を作成
+        Post post = new Post("Test content");
+        
+        // when - いいね数を設定
+        post.setLikes(10);
+        
+        // then - いいね数が正しく設定されていることを確認
+        assertEquals(10, post.getLikes());
+    }
+    
+    /**
+     * いいね数インクリメントメソッドのテスト
+     * incrementLikesメソッドでいいね数が1増加することを確認する
+     */
+    @Test
+    void incrementLikes_shouldIncreaseLikesCountByOne() {
+        // given - 新しい投稿を作成
+        Post post = new Post("Test content");
+        assertEquals(0, post.getLikes()); // 初期値は0
+        
+        // when - いいね数をインクリメント
+        int result = post.incrementLikes();
+        
+        // then - いいね数が1増加していることと、メソッドの戻り値が新しいいいね数であることを確認
+        assertEquals(1, post.getLikes());
+        assertEquals(1, result);
+        
+        // 再度インクリメント
+        result = post.incrementLikes();
+        
+        // さらに1増加していることを確認
+        assertEquals(2, post.getLikes());
+        assertEquals(2, result);
     }
 }

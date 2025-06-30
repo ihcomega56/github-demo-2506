@@ -13,6 +13,7 @@ public class Post {
     private Instant updatedAt;
     private Instant publishedAt;
     private boolean isDraft;
+    private int likes = 0;
 
     /**
      * デフォルトコンストラクタ。
@@ -149,6 +150,33 @@ public class Post {
         if (!draft && publishedAt == null) {
             publishedAt = Instant.now();
         }
+    }
+
+    /**
+     * 投稿のいいね数を取得します。
+     *
+     * @return いいね数
+     */
+    public int getLikes() {
+        return likes;
+    }
+
+    /**
+     * 投稿のいいね数を設定します。
+     *
+     * @param likes いいね数
+     */
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    /**
+     * 投稿のいいね数を1増やします。
+     *
+     * @return 増加後のいいね数
+     */
+    public int incrementLikes() {
+        return ++likes;
     }
 
     /**
@@ -297,6 +325,7 @@ public class Post {
                 "id=" + id +
                 ", content='" + content + '\'' +
                 ", isDraft=" + isDraft +
+                ", likes=" + likes +
                 '}';
     }
 }
