@@ -176,7 +176,7 @@ public class Post {
      * @return 増加後のいいね数
      */
     public int incrementLikes() {
-        return likes++;
+        return ++likes;
     }
 
     /**
