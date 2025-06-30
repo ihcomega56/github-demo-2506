@@ -226,4 +226,73 @@ class PostControllerTest {
                 .andExpect(jsonPath("$[0].draft").value(true)) // 下書き状態を確認
                 .andExpect(jsonPath("$[1].draft").value(true)); // 下書き状態を確認
     }
+    
+    /**
+     * 投稿いいね追加APIのテスト - 正常系
+     * 既存の投稿にいいねを追加し、HTTP 200といいね追加後の投稿が返されることを確認する
+     */
+    @Test
+    void likePost_shouldReturnUpdatedPost() throws Exception {
+        // given - いいね対象の投稿データを準備
+        Long postId = 1L;
+        Post likedPost = new Post("Content");
+        likedPost.setId(postId);
+        likedPost.setLikes(1); // いいね追加後の状態
+
+        when(postService.likePost(postId)).thenReturn(likedPost);
+
+        // when & then - いいね追加APIを呼び出してレスポンスを検証
+        mockMvc.perform(post("/api/posts/{id}/like", postId))
+                .andExpect(status().isOk()) // HTTP 200 OK
+                .andExpect(jsonPath("$.id").value(postId))
+                .andExpect(jsonPath("$.likes").value(1)); // いいね数が1であることを確認
+    }
+    
+    /**
+     * 投稿いいね追加APIのテスト - 異常系
+     * 存在しない投稿にいいねを追加しようとした場合、HTTP 404が返されることを確認する
+     */
+    @Test
+    void likePost_shouldReturnNotFoundWhenPostDoesNotExist() throws Exception {
+        // given - 存在しない投稿IDを設定
+        Long postId = 999L;
+        when(postService.likePost(postId)).thenReturn(null); // サービスがnullを返すようにモック
+
+        // when & then - APIを呼び出してHTTP 404を期待
+        mockMvc.perform(post("/api/posts/{id}/like", postId))
+                .andExpect(status().isNotFound()); // HTTP 404 Not Found
+    }
+    
+    /**
+     * 投稿いいね数取得APIのテスト - 正常系
+     * 既存の投稿のいいね数を取得し、HTTP 200といいね数が返されることを確認する
+     */
+    @Test
+    void getPostLikes_shouldReturnLikesCount() throws Exception {
+        // given - いいね数取得対象の投稿IDを設定
+        Long postId = 1L;
+        Integer likesCount = 5; // いいね数
+
+        when(postService.getPostLikes(postId)).thenReturn(likesCount);
+
+        // when & then - いいね数取得APIを呼び出してレスポンスを検証
+        mockMvc.perform(get("/api/posts/{id}/likes", postId))
+                .andExpect(status().isOk()) // HTTP 200 OK
+                .andExpect(jsonPath("$.likes").value(5)); // いいね数が正しく返されること
+    }
+    
+    /**
+     * 投稿いいね数取得APIのテスト - 異常系
+     * 存在しない投稿のいいね数を取得しようとした場合、HTTP 404が返されることを確認する
+     */
+    @Test
+    void getPostLikes_shouldReturnNotFoundWhenPostDoesNotExist() throws Exception {
+        // given - 存在しない投稿IDを設定
+        Long postId = 999L;
+        when(postService.getPostLikes(postId)).thenReturn(null); // サービスがnullを返すようにモック
+
+        // when & then - APIを呼び出してHTTP 404を期待
+        mockMvc.perform(get("/api/posts/{id}/likes", postId))
+                .andExpect(status().isNotFound()); // HTTP 404 Not Found
+    }
 }

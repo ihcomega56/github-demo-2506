@@ -1,12 +1,18 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Post;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.example.demo.model.Post;
 
 /**
  * PostServiceのビジネスロジックをテストするクラス
@@ -259,5 +265,77 @@ class PostServiceTest {
 
         // then - 空のリストが返されることを確認
         assertTrue(result.isEmpty());
+    }
+
+    /**
+     * いいね追加機能のテスト - 正常系
+     * 投稿にいいねを追加した場合、いいね数が増加することを確認する
+     */
+    @Test
+    void likePost_shouldIncrementLikesForExistingPost() {
+        // given - いいね対象の投稿を作成
+        Post post = postService.createDraft("Test content");
+        Long postId = post.getId();
+        assertEquals(0, post.getLikes()); // 初期状態ではいいね数は0
+
+        // when - いいねを追加
+        Post result = postService.likePost(postId);
+
+        // then - いいね数が増加したことを確認
+        assertNotNull(result);
+        assertEquals(1, result.getLikes()); // いいね数が1増えていること
+        assertEquals(1, postService.getPost(postId).getLikes()); // 保存されていること
+    }
+
+    /**
+     * いいね追加機能のテスト - 異常系
+     * 存在しない投稿にいいねを追加しようとした場合、nullが返されることを確認する
+     */
+    @Test
+    void likePost_shouldReturnNullForNonexistentPost() {
+        // given - 存在しない投稿ID
+        Long nonexistentId = 999L;
+
+        // when - 存在しない投稿にいいねを追加しようと試行
+        Post result = postService.likePost(nonexistentId);
+
+        // then - nullが返されることを確認
+        assertNull(result);
+    }
+
+    /**
+     * いいね数取得機能のテスト - 正常系
+     * 投稿のいいね数を正しく取得できることを確認する
+     */
+    @Test
+    void getPostLikes_shouldReturnCorrectLikesCount() {
+        // given - 投稿を作成していいねを追加
+        Post post = postService.createDraft("Test content");
+        Long postId = post.getId();
+        postService.likePost(postId); // 1回いいね
+        postService.likePost(postId); // 2回いいね
+
+        // when - いいね数を取得
+        Integer likes = postService.getPostLikes(postId);
+
+        // then - 正しいいいね数が返されることを確認
+        assertNotNull(likes);
+        assertEquals(2, likes.intValue()); // いいね数が2であること
+    }
+
+    /**
+     * いいね数取得機能のテスト - 異常系
+     * 存在しない投稿のいいね数を取得しようとした場合、nullが返されることを確認する
+     */
+    @Test
+    void getPostLikes_shouldReturnNullForNonexistentPost() {
+        // given - 存在しない投稿ID
+        Long nonexistentId = 999L;
+
+        // when - 存在しない投稿のいいね数を取得しようと試行
+        Integer likes = postService.getPostLikes(nonexistentId);
+
+        // then - nullが返されることを確認
+        assertNull(likes);
     }
 }
