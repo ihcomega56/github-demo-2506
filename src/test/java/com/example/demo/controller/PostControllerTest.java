@@ -77,6 +77,32 @@ class PostControllerTest {
     }
 
     /**
+     * 下書き投稿作成APIのテスト - 異常系
+     * コンテンツが空文字列の場合、HTTP 400が返されることを確認する
+     */
+    @Test
+    void createDraft_shouldReturnBadRequestWhenContentIsEmpty() throws Exception {
+        // when & then - 空文字列のJSONリクエストを送信してHTTP 400を期待
+        mockMvc.perform(post("/api/posts/drafts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"content\":\"\"}"))
+                .andExpect(status().isBadRequest()); // HTTP 400 Bad Request
+    }
+
+    /**
+     * 下書き投稿作成APIのテスト - 異常系
+     * コンテンツが空白文字のみの場合、HTTP 400が返されることを確認する
+     */
+    @Test
+    void createDraft_shouldReturnBadRequestWhenContentIsBlank() throws Exception {
+        // when & then - 空白文字のみのJSONリクエストを送信してHTTP 400を期待
+        mockMvc.perform(post("/api/posts/drafts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"content\":\"   \"}"))
+                .andExpect(status().isBadRequest()); // HTTP 400 Bad Request
+    }
+
+    /**
      * 投稿公開APIのテスト - 正常系
      * 既存の下書きを公開し、HTTP 200と更新された投稿が返されることを確認する
      */

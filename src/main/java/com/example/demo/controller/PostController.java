@@ -50,7 +50,7 @@ public class PostController {
     public ResponseEntity<Post> createDraft(@RequestBody Map<String, String> payload) {
         var content = payload.get("content");
         
-        if (content == null) {
+        if (content == null || content.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
         
