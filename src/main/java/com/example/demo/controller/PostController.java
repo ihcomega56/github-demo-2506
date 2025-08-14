@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,8 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.config.DeploymentInfo;
+import com.example.demo.dto.CreatePostRequest;
 import com.example.demo.model.Post;
 import com.example.demo.service.PostService;
+
+import jakarta.validation.Valid;
 
 /**
  * 投稿に関するAPIエンドポイントを提供するコントローラークラス。
@@ -43,18 +47,12 @@ public class PostController {
     /**
      * 下書き投稿を作成するエンドポイント。
      * 
-     * @param payload 投稿内容を含むリクエストボディ（"content"キーが必須）
-     * @return 作成された投稿情報とHTTPステータス201（Created）、またはエラー時は400（Bad Request）
+     * @param request 投稿作成リクエスト（バリデーション対象）
+     * @return 作成された投稿情報とHTTPステータス201（Created）、バリデーションエラー時は400（Bad Request）
      */
     @PostMapping("/drafts")
-    public ResponseEntity<Post> createDraft(@RequestBody Map<String, String> payload) {
-        var content = payload.get("content");
-        
-        if (content == null || content.trim().isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-        
-        var createdPost = postService.createDraft(content);
+    public ResponseEntity<Post> createDraft(@Valid @RequestBody CreatePostRequest request) {
+        var createdPost = postService.createDraft(request.getContent());
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
     }
     

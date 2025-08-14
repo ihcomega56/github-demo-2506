@@ -2,13 +2,20 @@ package com.example.demo.model;
 
 import java.time.Instant;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 /**
  * 投稿エンティティを表すモデルクラス。
  * 投稿の内容、作成日時、更新日時、公開日時、下書き状態などの情報を保持します。
  */
 public class Post {
     private Long id;
+    
+    @NotBlank(message = "投稿内容は必須です")
+    @Size(max = 1000, message = "投稿内容は1000文字以内で入力してください")
     private String content;
+    
     private Instant createdAt;
     private Instant updatedAt;
     private Instant publishedAt;
