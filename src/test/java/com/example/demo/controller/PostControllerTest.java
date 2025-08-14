@@ -101,6 +101,40 @@ class PostControllerTest {
                 .content("{\"content\":\"   \"}"))
                 .andExpect(status().isBadRequest()); // HTTP 400 Bad Request
     }
+    
+    /**
+     * 下書き投稿作成APIのテスト - 異常系
+     * コンテンツが文字数制限を超える場合、HTTP 400が返されることを確認する
+     */
+    @Test
+    void createDraft_shouldReturnBadRequestWhenContentExceedsMaxLength() throws Exception {
+        // 1001文字のコンテンツを作成
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 1001; i++) {
+            sb.append("a");
+        }
+        String tooLongContent = sb.toString();
+        
+        // when & then - 文字数制限を超えるJSONリクエストを送信してHTTP 400を期待
+        mockMvc.perform(post("/api/posts/drafts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"content\":\"" + tooLongContent + "\"}"))
+                .andExpect(status().isBadRequest()); // HTTP 400 Bad Request
+    }
+    
+    /**
+     * 下書き投稿作成APIのテスト - 異常系
+     * バリデーションエラー時に適切なエラーメッセージが返されることを確認する
+     */
+    @Test
+    void createDraft_shouldReturnValidationErrorMessages() throws Exception {
+        // when & then - 空文字列のJSONリクエストを送信してバリデーションエラーメッセージを確認
+        mockMvc.perform(post("/api/posts/drafts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"content\":\"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.content").exists()); // contentフィールドに関するエラーメッセージが存在する
+    }
 
     /**
      * 投稿公開APIのテスト - 正常系
