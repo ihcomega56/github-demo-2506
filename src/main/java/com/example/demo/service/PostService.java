@@ -1,6 +1,6 @@
 package com.example.demo.service;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +45,7 @@ public class PostService {
         Post post = posts.get(id);
         if (post != null && post.isDraft()) {
             post.setDraft(false);
-            post.setPublishedAt(new Date().toInstant());
+            post.setPublishedAt(Instant.now());
             return post;
         }
         return null;
