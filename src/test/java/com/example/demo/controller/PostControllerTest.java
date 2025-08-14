@@ -208,7 +208,7 @@ class PostControllerTest {
      * 公開された投稿のリストが正しく返されることを確認する
      */
     @Test
-    void getAllPublishedPosts_shouldReturnListOfPublishedPosts() throws Exception {
+    void getPublishedPosts_shouldReturnListOfPublishedPosts() throws Exception {
         // given - 公開投稿リストを準備
         Post post1 = new Post("Content 1");
         post1.setId(1L);
@@ -218,7 +218,7 @@ class PostControllerTest {
         post2.setDraft(false); // 公開状態
         List<Post> publishedPosts = Arrays.asList(post1, post2);
 
-        when(postService.getAllPublishedPosts()).thenReturn(publishedPosts);
+        when(postService.getPublishedPosts()).thenReturn(publishedPosts);
 
         // when & then - 公開投稿一覧APIを呼び出してレスポンスを検証
         mockMvc.perform(get("/api/posts/published"))
@@ -233,7 +233,7 @@ class PostControllerTest {
      * 下書き状態の投稿のリストが正しく返されることを確認する
      */
     @Test
-    void getAllDraftPosts_shouldReturnListOfDraftPosts() throws Exception {
+    void getDraftPosts_shouldReturnListOfDraftPosts() throws Exception {
         // given - 下書き投稿リストを準備
         Post draft1 = new Post("Draft 1");
         draft1.setId(1L); // デフォルトで下書き状態
@@ -241,7 +241,7 @@ class PostControllerTest {
         draft2.setId(2L); // デフォルトで下書き状態
         List<Post> draftPosts = Arrays.asList(draft1, draft2);
 
-        when(postService.getAllDraftPosts()).thenReturn(draftPosts);
+        when(postService.getDraftPosts()).thenReturn(draftPosts);
 
         // when & then - 下書き投稿一覧APIを呼び出してレスポンスを検証
         mockMvc.perform(get("/api/posts/drafts"))

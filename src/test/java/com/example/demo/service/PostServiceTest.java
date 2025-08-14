@@ -198,7 +198,7 @@ class PostServiceTest {
      * 公開状態の投稿のみがリストに含まれることを確認する
      */
     @Test
-    void getAllPublishedPosts_shouldReturnOnlyPublishedPosts() {
+    void getPublishedPosts_shouldReturnOnlyPublishedPosts() {
         // given - 下書きと公開投稿を混在させて作成
         Post draft1 = postService.createDraft("Draft 1");
         Post draft2 = postService.createDraft("Draft 2");
@@ -206,7 +206,7 @@ class PostServiceTest {
         postService.publishPost(published1.getId()); // 1つだけ公開
 
         // when - 公開投稿一覧を取得
-        List<Post> result = postService.getAllPublishedPosts();
+        List<Post> result = postService.getPublishedPosts();
 
         // then - 公開投稿のみが取得されることを確認
         assertEquals(1, result.size()); // 公開投稿は1件のみ
@@ -219,12 +219,12 @@ class PostServiceTest {
      * 公開投稿が1件もない場合、空のリストが返されることを確認する
      */
     @Test
-    void getAllPublishedPosts_shouldReturnEmptyListWhenNoPublishedPosts() {
+    void getPublishedPosts_shouldReturnEmptyListWhenNoPublishedPosts() {
         // given - 下書きのみを作成（公開投稿なし）
         postService.createDraft("Only draft");
 
         // when - 公開投稿一覧を取得
-        List<Post> result = postService.getAllPublishedPosts();
+        List<Post> result = postService.getPublishedPosts();
 
         // then - 空のリストが返されることを確認
         assertTrue(result.isEmpty());
@@ -235,7 +235,7 @@ class PostServiceTest {
      * 下書き状態の投稿のみがリストに含まれることを確認する
      */
     @Test
-    void getAllDraftPosts_shouldReturnOnlyDraftPosts() {
+    void getDraftPosts_shouldReturnOnlyDraftPosts() {
         // given - 下書きと公開投稿を混在させて作成
         Post draft1 = postService.createDraft("Draft 1");
         Post draft2 = postService.createDraft("Draft 2");
@@ -243,7 +243,7 @@ class PostServiceTest {
         postService.publishPost(published.getId()); // 1つを公開
 
         // when - 下書き投稿一覧を取得
-        List<Post> result = postService.getAllDraftPosts();
+        List<Post> result = postService.getDraftPosts();
 
         // then - 下書き投稿のみが取得されることを確認
         assertEquals(2, result.size()); // 下書きは2件
@@ -255,13 +255,13 @@ class PostServiceTest {
      * 下書きが1件もない場合、空のリストが返されることを確認する
      */
     @Test
-    void getAllDraftPosts_shouldReturnEmptyListWhenNoDrafts() {
+    void getDraftPosts_shouldReturnEmptyListWhenNoDrafts() {
         // given - 公開投稿のみを作成（下書きなし）
         Post published = postService.createDraft("Published");
         postService.publishPost(published.getId());
 
         // when - 下書き投稿一覧を取得
-        List<Post> result = postService.getAllDraftPosts();
+        List<Post> result = postService.getDraftPosts();
 
         // then - 空のリストが返されることを確認
         assertTrue(result.isEmpty());

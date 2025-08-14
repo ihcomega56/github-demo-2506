@@ -103,8 +103,8 @@ public class PostController {
      * @return 公開済み投稿のリストとHTTPステータス200（OK）
      */
     @GetMapping("/published")
-    public ResponseEntity<List<Post>> getAllPublishedPosts() {
-        var posts = postService.getAllPublishedPosts();
+    public ResponseEntity<List<Post>> getPublishedPosts() {
+        var posts = postService.getPublishedPosts();
         return ResponseEntity.ok(posts);
     }
     
@@ -114,8 +114,8 @@ public class PostController {
      * @return 下書き投稿のリストとHTTPステータス200（OK）
      */
     @GetMapping("/drafts")
-    public ResponseEntity<List<Post>> getAllDraftPosts() {
-        var posts = postService.getAllDraftPosts();
+    public ResponseEntity<List<Post>> getDraftPosts() {
+        var posts = postService.getDraftPosts();
         return ResponseEntity.ok(posts);
     }
     
